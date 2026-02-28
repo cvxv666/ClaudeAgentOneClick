@@ -39,18 +39,30 @@ Turn a VPS into an AI-powered personal server with persistent memory, Telegram i
 git clone https://github.com/YOUR_USER/claude-server-kit.git
 cd claude-server-kit
 
-# 2. Run setup (installs everything)
+# 2. Run setup (installs everything: uv, Node.js, PM2, Brain, Takopi, vault)
 bash setup.sh
 
-# 3. Configure Takopi (Telegram bot)
-takopi  # Follow the interactive setup
+# 3. Configure API keys and credentials (interactive wizard)
+bash configure.sh
 
-# 4. Customize your CLAUDE.md
-nano ~/CLAUDE.md
-
-# 5. Start Claude Code
+# 4. Start Claude Code
 claude
 ```
+
+## Onboarding: API Keys & Credentials
+
+Run `bash configure.sh` for an interactive wizard, or set up manually:
+
+| What | How | Required? |
+|------|-----|-----------|
+| **Takopi** (Telegram bot) | `takopi` (interactive setup wizard) | Yes, for Telegram |
+| **Groq API** (fast transcription) | `echo '{"api_key":"gsk_..."}' > ~/.groq-api-key.json && chmod 600 ~/.groq-api-key.json` | Optional (long audio) |
+| **Vault git remote** | `cd ~/vault && git remote add origin <url>` | Optional (cloud backup) |
+| **Backup passphrase** | `echo 'passphrase' > ~/.backup-passphrase && chmod 600 ~/.backup-passphrase` | Optional (backups) |
+| **Figma API** | Add to `~/.mcp.json` (see configure.sh) | Optional |
+| **CLAUDE.md** | Edit `~/CLAUDE.md` — set your name, customize workflow | Recommended |
+
+All credential files are `chmod 600` and listed in `.gitignore` — they never get committed.
 
 ## Requirements
 
