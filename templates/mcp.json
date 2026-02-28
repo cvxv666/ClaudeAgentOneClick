@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "brain": {
+      "command": "UV_PATH/uv",
+      "args": ["run", "--directory", "BRAIN_DIR/brain", "python", "-m", "brain"],
+      "type": "stdio"
+    }
+  }
+}

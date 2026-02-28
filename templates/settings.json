@@ -1,0 +1,32 @@
+{
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "MultiEdit(*)",
+      "NotebookEdit(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "TodoWrite(*)",
+      "mcp__brain__search_vault",
+      "mcp__brain__read_vault",
+      "mcp__brain__write_vault",
+      "mcp__brain__list_vault",
+      "mcp__brain__ingest_audio",
+      "mcp__brain__ingest_document",
+      "mcp__brain__get_server_status",
+      "mcp__brain__get_server_map",
+      "mcp__brain__update_dashboard",
+      "mcp__brain__ask_via_telegram",
+      "mcp__brain__send_telegram_question",
+      "mcp__brain__check_telegram_answer",
+      "mcp__brain__cancel_telegram_question",
+      "mcp__brain__semantic_search"
+    ]
+  }
+}

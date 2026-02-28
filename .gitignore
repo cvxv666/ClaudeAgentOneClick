@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Dependencies
+node_modules/
+uv.lock
+
+# Secrets — NEVER commit these
+.env
+*.key
+*.pem
+*-webhook.json
+*-token.json
+*-api-key.json
+*-credentials.json
+.backup-passphrase
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Brain index (regenerated)
+.brain/
