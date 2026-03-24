@@ -32,7 +32,9 @@
       "mcp__brain__list_calendar_events",
       "mcp__brain__remove_calendar_event",
       "mcp__brain__update_calendar_event",
-      "mcp__brain__queue_calendar_sync"
+      "mcp__brain__queue_calendar_sync",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ]
   }
 }

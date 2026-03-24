@@ -1,0 +1,106 @@
+name: Test Setup
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-setup:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run setup.sh
+        run: |
+          sudo bash setup.sh 2>&1
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
+      - name: Verify uv installed
+        run: |
+          /root/.local/bin/uv --version || ~/.local/bin/uv --version
+
+      - name: Verify Node.js installed
+        run: node --version
+
+      - name: Verify PM2 installed
+        run: pm2 --version
+
+      - name: Verify Brain MCP directory
+        run: |
+          test -d ~/brain/src/brain/
+          test -f ~/brain/src/brain/server.py
+          test -f ~/brain/pyproject.toml
+
+      - name: Verify vault structure
+        run: |
+          test -f ~/vault/dashboard.md
+          test -f ~/vault/inbox/INBOX.md
+          test -f ~/vault/conversations/CONVERSATIONS.md
+          test -f ~/vault/decisions/DECISIONS.md
+          test -f ~/vault/knowledge/personal/PERSONAL.md
+          test -f ~/vault/knowledge/projects/PROJECTS.md
+          test -d ~/vault/.git
+
+      - name: Verify CLAUDE.md template
+        run: |
+          test -f ~/CLAUDE.md
+          grep -q "YOUR_NAME" ~/CLAUDE.md
+
+      - name: Verify MCP config
+        run: |
+          test -f ~/.mcp.json
+          grep -q "brain" ~/.mcp.json
+          grep -q "context7" ~/.mcp.json
+
+      - name: Verify settings.json
+        run: |
+          test -f ~/.claude/settings.json
+          grep -q "mcp__brain__" ~/.claude/settings.json
+          grep -q "mcp__context7__" ~/.claude/settings.json
+
+      - name: Verify onboarding skill
+        run: |
+          test -f ~/.claude/skills/onboarding/SKILL.md
+          grep -q "Step 0" ~/.claude/skills/onboarding/SKILL.md
+          grep -q "Step 11" ~/.claude/skills/onboarding/SKILL.md
+
+      - name: Verify memory template
+        run: |
+          test -f ~/.claude/projects/-root/memory/MEMORY.md
+
+      - name: Verify Brain can import
+        run: |
+          cd ~/brain
+          ~/.local/bin/uv run python -c "from brain.server import mcp; print(f'Brain loaded: {len(mcp._tools)} tools')"
+
+      - name: Verify Whisper server can import
+        run: |
+          cd ~/brain
+          ~/.local/bin/uv run python -c "from brain.whisper_server import app; print('Whisper server OK')"
+
+      - name: Verify librarian
+        run: |
+          test -f ~/librarian/SYSTEM.md
+          test -f ~/librarian/CHECKLIST.md
+          test -f ~/librarian/run.sh
+
+      - name: Verify scripts
+        run: |
+          test -f ~/scripts/backup.sh
+          test -f ~/scripts/reminders/reminder.sh
+
+      - name: Summary
+        run: |
+          echo "=== Setup Test Complete ==="
+          echo "uv: $(~/.local/bin/uv --version 2>/dev/null || echo 'N/A')"
+          echo "node: $(node --version 2>/dev/null || echo 'N/A')"
+          echo "pm2: $(pm2 --version 2>/dev/null || echo 'N/A')"
+          echo "vault files: $(find ~/vault -name '*.md' | wc -l)"
+          echo "brain tools: $(cd ~/brain && ~/.local/bin/uv run python -c 'from brain.server import mcp; print(len(mcp._tools))' 2>/dev/null || echo 'N/A')"
+          echo "==========================="

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0b1a;
+    color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+  }
+
+  .diagram {
+    width: 1200px;
+    background: #0d0b1a;
+    border: 2px solid #3b3659;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diagram::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(110,28,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header {
+    padding: 32px 40px;
+    border-bottom: 2px solid #3b3659;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+
+  .header h1 span { color: #6e1cff; }
+
+  .header .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6e1cff;
+    border: 2px solid #6e1cff;
+    padding: 6px 16px;
+    background: rgba(110,28,255,0.1);
+  }
+
+  .content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .claude-box {
+    background: linear-gradient(135deg, rgba(110,28,255,0.15) 0%, rgba(110,28,255,0.05) 100%);
+    border: 2px solid #6e1cff;
+    padding: 24px 32px;
+    position: relative;
+    box-shadow: 6px 6px 0px rgba(110,28,255,0.3);
+  }
+
+  .claude-box .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #f3f4f6;
+    margin-bottom: 8px;
+  }
+
+  .claude-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+
+  .claude-box .components {
+    display: flex;
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #b8b0d0;
+  }
+
+  .claude-box .components span {
+    padding: 4px 12px;
+    border: 1px solid #3b3659;
+    background: rgba(13,11,26,0.6);
+  }
+
+  .services {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .service {
+    border: 2px solid #3b3659;
+    padding: 20px;
+    background: rgba(59,54,89,0.1);
+    position: relative;
+  }
+
+  .service::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #6e1cff;
+  }
+
+  .service .svc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f3f4f6;
+    margin-bottom: 8px;
+  }
+
+  .service h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .service p {
+    font-size: 13px;
+    color: #b8b0d0;
+    line-height: 1.5;
+  }
+
+  .service .port {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #b8b0d0;
+    margin-top: 8px;
+  }
+
+  .data-layer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .data-box {
+    border: 1px solid #3b3659;
+    padding: 16px 20px;
+    background: rgba(13,11,26,0.8);
+  }
+
+  .data-box .data-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #6e1cff;
+    margin-bottom: 8px;
+  }
+
+  .data-box h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .data-box p {
+    font-size: 12px;
+    color: #b8b0d0;
+  }
+
+  .connectors {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 40px;
+  }
+
+  .connector {
+    width: 2px;
+    height: 24px;
+    background: #3b3659;
+    position: relative;
+  }
+
+  .connector::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background: #6e1cff;
+    transform: rotate(45deg);
+  }
+
+  .footer {
+    padding: 20px 40px;
+    border-top: 2px solid #3b3659;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #b8b0d0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .footer .author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .footer .author img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #6e1cff;
+  }
+
+  .footer .author a {
+    color: #6e1cff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="diagram">
+  <div class="header">
+    <h1>Claude Server Kit<span>:</span> Архитектура</h1>
+    <div class="tag">SYS_ARCHITECTURE_V1</div>
+  </div>
+
+  <div class="content">
+    <div class="claude-box">
+      <div class="label">// Ядро системы</div>
+      <h2>Claude Code</h2>
+      <div class="components">
+        <span>CLAUDE.md</span>
+        <span>Memory</span>
+        <span>MCP Servers</span>
+        <span>Skills</span>
+        <span>Onboarding</span>
+      </div>
+    </div>
+
+    <div class="connectors">
+      <div class="connector"></div>
+      <div class="connector"></div>
+      <div class="connector"></div>
+      <div class="connector"></div>
+    </div>
+
+    <div class="services">
+      <div class="service">
+        <div class="svc-label">MCP сервер</div>
+        <h3>Brain</h3>
+        <p>20 инструментов: vault, поиск, аудио, календарь, мониторинг</p>
+        <div class="port">stdio</div>
+      </div>
+      <div class="service">
+        <div class="svc-label">Telegram мост</div>
+        <h3>Takopi</h3>
+        <p>Бот + dual-channel Q&A + голосовые + файлы</p>
+        <div class="port">:9877</div>
+      </div>
+      <div class="service">
+        <div class="svc-label">Недельный агент</div>
+        <h3>Librarian</h3>
+        <p>Автономный аудит хранилища, проверки, отчёты</p>
+        <div class="port">cron: пн 04:00</div>
+      </div>
+      <div class="service">
+        <div class="svc-label">MCP сервер</div>
+        <h3>Context7</h3>
+        <p>Актуальная документация по любой библиотеке</p>
+        <div class="port">stdio</div>
+      </div>
+    </div>
+
+    <div class="connectors">
+      <div class="connector"></div>
+      <div class="connector"></div>
+      <div class="connector"></div>
+    </div>
+
+    <div class="data-layer">
+      <div class="data-box">
+        <div class="data-icon">~/vault/</div>
+        <h4>Obsidian Vault</h4>
+        <p>Markdown файлы, YAML метаданные, git-синк каждые 5 мин</p>
+      </div>
+      <div class="data-box">
+        <div class="data-icon">calendar.db</div>
+        <h4>Календарь</h4>
+        <p>SQLite, привязка к задачам, синк раз в час</p>
+      </div>
+      <div class="data-box">
+        <div class="data-icon">:8787</div>
+        <h4>Whisper Server</h4>
+        <p>faster-whisper локально + Groq API для длинных аудио</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>claude-server-kit // github.com/doffskiii</span>
+    <div class="author">
+      <img src="avatar.jpg" alt="Yash" />
+      <a href="https://t.me/yshlfe">by t.me/yshlfe</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

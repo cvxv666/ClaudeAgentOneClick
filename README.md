@@ -1,349 +1,241 @@
 # Claude Server Kit
 
-Turn a VPS into an AI-powered personal server with persistent memory, knowledge management, and Telegram integration.
+Превращаем VPS в персонального AI-ассистента с памятью, Telegram-ботом и кучей суперсил.
 
-Two weeks of daily iteration distilled into one repo. Clone it, run `setup.sh`, and get a personal AI assistant that remembers everything, manages your tasks, transcribes voice messages, and talks to you on Telegram.
+Две недели ежедневных итераций, упакованные в один репозиторий. Клонишь, запускаешь `setup.sh`, и получаешь агента, который помнит всё, управляет задачами, расшифровывает голосовые и общается с тобой в Telegram.
 
-## What You Get
+> Подробная серия постов, где разобран каждый компонент: [Курс молодого AI билдера](https://t.me/yshlfe/264)
 
-- **Brain MCP Server** — Obsidian vault as Claude's persistent memory with 20 tools: search, semantic search, read, write, dashboard, audio transcription, calendar, server monitoring
-- **Vault** — Structured Obsidian vault with git sync, YAML frontmatter, bidirectional links, context files per folder
-- **Semantic Search** — Find documents by meaning, not just keywords (ONNX embeddings, runs on CPU, no GPU needed)
-- **Calendar** — Event tracking with source linking and automatic sync to task systems
-- **Dashboard** — Safe task management directly in the vault (never overwrites, atomic operations)
-- **Whisper** — OpenAI-compatible transcription server (short audio → local faster-whisper, long audio → Groq API)
-- **Monitoring** — CPU/RAM/disk alerts to Telegram when things go wrong
-- **Librarian** — Weekly autonomous vault audit agent that finds orphans, broken links, stale files
-- **Dual-Channel Ask** — Ask questions in both VS Code and Telegram simultaneously. First answer wins
-- **Skills** — Extensible slash-command system for recurring workflows (retro, reflection, task routing)
-- **Escalating Reminders** — Cron-based reminders that get more insistent over time
+![Architecture](docs/images/architecture.png)
 
-## Architecture
+## Чо внутри
 
-```
-┌─────────────────────────────────────────────────┐
-│                  Claude Code                    │
-│  CLAUDE.md + Memory + MCP Servers + Skills      │
-└───────┬───────────────────┬──────────┬──────────┘
-        │                   │          │
-  ┌─────▼─────┐    ┌───────▼────┐  ┌──▼──────────┐
-  │ Brain MCP │    │   Takopi   │  │  Librarian  │
-  │ 20 tools  │    │ (Telegram) │  │ (weekly     │
-  │           │◄──►│  port 9877 │  │  audit)     │
-  └──┬──┬──┬──┘    └──────┬─────┘  └─────────────┘
-     │  │  │              │
-┌────▼┐ │ ┌▼────┐  ┌──────▼──────┐
-│Vault│ │ │Cal. │  │  Telegram   │
-│ .md │ │ │ DB  │  │   (you)     │
-└─────┘ │ └─────┘  └─────────────┘
-    ┌───▼────┐
-    │Whisper │
-    │ :8787  │
-    └────────┘
-```
+- **Brain MCP** — 20 инструментов для работы с памятью: поиск (обычный + по смыслу), запись, дашборд, транскрибация аудио, календарь, мониторинг сервера
+- **Vault** — Obsidian-хранилище с git-синком, мета-тегами, двусторонними ссылками и контекстным файлом в каждой папке
+- **Семантический поиск** — находит документы по смыслу, а не только по словам. ONNX модель, работает на CPU
+- **Whisper** — OpenAI-совместимый сервер транскрибации. Короткие аудио обрабатываются локально, длинные летят на Groq API
+- **Takopi** — Telegram-бот для общения с агентом с телефона. Голосовые, файлы, мультисессии
+- **Мониторинг** — алерты в Telegram когда CPU/RAM/диск на пределе или процесс упал
+- **Библиотекарь** — еженедельный автономный аудит хранилища: находит сироток, битые ссылки, устаревшие файлы
+- **Dual-Channel Ask** — вопросы одновременно в VS Code и Telegram. Кто первый ответил, тот и молодец
+- **Context7** — актуальная документация по любой библиотеке по запросу
+- **Скиллы** — расширяемая система команд для повторяющихся задач
+- **Эскалирующие напоминалки** — крон-ремайндеры, которые становятся настойчивее с каждым уровнем
+- **Интерактивный онбординг** — агент сам проведёт новичка по всем шагам, без чтения документации
 
-## Quick Start
+## Быстрый старт
 
 ```bash
-# 1. Clone
-git clone https://github.com/YOUR_USER/claude-server-kit.git
+# 1. Клонируем
+git clone https://github.com/doffskiii/claude-server-kit.git
 cd claude-server-kit
 
-# 2. Run setup (installs uv, Node.js, PM2, Brain, vault, ML models)
+# 2. Ставим всё (uv, Node.js, PM2, Brain, vault, ML модели)
 bash setup.sh
 
-# 3. Configure credentials (interactive wizard)
+# 3. Настраиваем креды (интерактивный визард)
 bash configure.sh
 
-# 4. Start Claude Code
+# 4. Запускаем Claude Code и пишем "привет"
 claude
 ```
 
-## Credentials Setup
+![Onboarding Flow](docs/images/onboarding-flow.png)
 
-Run `bash configure.sh` for an interactive wizard, or set up manually:
+Агент сам поймёт, что это первый запуск, и запустит **интерактивный онбординг**: познакомится, расскажет что умеет, настроит Telegram, голосовые, бэкапы, безопасность. Просто отвечай на вопросы.
 
-| What | How | Required? |
-|------|-----|-----------|
-| **Takopi** (Telegram bot) | `uv tool install takopi && takopi` | Yes, for Telegram |
-| **Groq API** (fast transcription) | `echo '{"api_key":"gsk_..."}' > ~/.groq-api-key.json && chmod 600 ~/.groq-api-key.json` | Optional (long audio) |
-| **Vault git remote** | `cd ~/vault && git remote add origin <url>` | Optional (cloud backup) |
-| **Backup passphrase** | `echo 'your-passphrase' > ~/.backup-passphrase && chmod 600 ~/.backup-passphrase` | Optional (backups) |
-| **CLAUDE.md** | Edit `~/CLAUDE.md` — set your name, customize workflow | Recommended |
+## Что нужно для запуска
 
-All credential files are `chmod 600` and listed in `.gitignore`.
+- Ubuntu 20.04+ (или аналогичный Linux)
+- 2+ GB RAM (4+ GB если хотите Whisper + эмбеддинги)
+- Git, интернет
+- `setup.sh` установит всё остальное: uv, Python 3.12+, Node.js, PM2, ffmpeg
 
-## Requirements
+## Настройка кредов
 
-- Ubuntu 20.04+ (or similar Linux)
-- 2+ GB RAM (4+ GB recommended for Whisper + embeddings)
-- Git, internet access
-- `setup.sh` installs everything else: uv, Python 3.12+, Node.js, PM2, ffmpeg
+Можно через визард `bash configure.sh`, а можно руками:
 
-## Repository Structure
+**Takopi (Telegram-бот)** — нужен для общения с телефона
+```bash
+uv tool install takopi && takopi
+```
+
+**Groq API (опционально)** — ускоряет транскрибацию длинных аудио
+```bash
+echo '{"api_key":"gsk_..."}' > ~/.groq-api-key.json && chmod 600 ~/.groq-api-key.json
+```
+
+**Git-бэкап хранилища (опционально)** — пушит vault в приватный репо каждые 5 минут
+```bash
+cd ~/vault && git remote add origin git@github.com:you/vault-private.git
+```
+
+**Шифрованный бэкап (опционально)** — ежедневный полный бэкап с GPG
+```bash
+echo 'your-passphrase' > ~/.backup-passphrase && chmod 600 ~/.backup-passphrase
+```
+
+Все чувствительные файлы — `chmod 600` и в `.gitignore`.
+
+## Структура репозитория
 
 ```
 claude-server-kit/
-├── brain/                    # Brain MCP server (Python, FastMCP)
+├── brain/                    # Brain MCP сервер (Python, FastMCP)
 │   ├── src/brain/
-│   │   ├── server.py         # 20 MCP tool definitions
-│   │   ├── config.py         # All configuration (env-driven)
+│   │   ├── server.py         # 20 MCP инструментов
+│   │   ├── config.py         # Конфигурация (env-driven)
 │   │   ├── whisper_server.py # OpenAI-compatible Whisper API
-│   │   ├── vault/            # Vault operations
-│   │   │   ├── tools.py      # search, read, write, list, dashboard
-│   │   │   ├── embeddings.py # ONNX semantic search engine
-│   │   │   ├── frontmatter.py# YAML frontmatter parser
-│   │   │   ├── ingest.py     # Audio + document ingestion
-│   │   │   └── sync.py       # Debounced git sync
-│   │   ├── calendar/         # Calendar system
-│   │   │   ├── db.py         # SQLite schema + queries
-│   │   │   └── tools.py      # Calendar API (get_today, events)
-│   │   └── server_tools/     # Server monitoring
-│   │       └── tools.py      # CPU/RAM/disk/PM2 status
-│   ├── scripts/              # Utility scripts
-│   │   ├── monitor.py        # Monitoring daemon (PM2)
-│   │   ├── build_index.py    # Rebuild semantic search index
-│   │   ├── download_model.py # Pre-download ONNX model
-│   │   └── vault-sync.sh     # Cron git sync
-│   ├── pyproject.toml        # Python dependencies
-│   └── ecosystem.config.cjs  # PM2 process config
+│   │   ├── vault/            # Операции с хранилищем
+│   │   ├── calendar/         # Календарь (SQLite)
+│   │   └── server_tools/     # Мониторинг сервера
+│   ├── scripts/              # Утилиты
+│   └── ecosystem.config.cjs  # PM2 конфигурация
 │
-├── librarian/                # Autonomous vault audit agent
-│   ├── SYSTEM.md             # Agent system prompt
-│   ├── CHECKLIST.md          # 10-section audit checklist
+├── librarian/                # Автономный аудит хранилища
+│   ├── SYSTEM.md             # Системный промпт агента
+│   ├── CHECKLIST.md          # 10-секционный чеклист
 │   └── run.sh                # Cron entry point
 │
-├── vault-template/           # Empty vault with context files
-│   ├── dashboard.md          # Task dashboard
-│   ├── _server-map.md        # Infrastructure reference
-│   ├── inbox/INBOX.md        # Unprocessed items
-│   ├── conversations/        # Session notes
-│   ├── decisions/            # Decision log
-│   ├── knowledge/            # Learning, projects, personal
-│   ├── content/              # Content plans
-│   ├── retro/                # Retrospectives (daily/weekly/monthly)
-│   ├── work/                 # Work projects
-│   └── templates/            # Obsidian templates
-│       ├── audio-note.md
-│       ├── project-card.md
-│       ├── meeting-note.md
-│       └── document.md
+├── vault-template/           # Пустое хранилище с контекстными файлами
+│   ├── dashboard.md          # Дашборд задач
+│   ├── inbox/                # Входящие идеи
+│   ├── conversations/        # Записи сессий
+│   ├── decisions/            # Лог решений
+│   ├── knowledge/            # Знания (проекты, личное, обучение)
+│   ├── retro/                # Ретроспективы
+│   └── templates/            # Шаблоны Obsidian
 │
-├── templates/                # Claude Code config templates
-│   ├── CLAUDE.md             # Agent instructions (THE BRAIN)
-│   ├── mcp.json              # MCP server registration
-│   ├── settings.json         # Permissions config
-│   └── memory/MEMORY.md      # Auto-memory bootstrap
+├── templates/                # Шаблоны конфигов Claude Code
+│   ├── CLAUDE.md             # Инструкции агента (THE BRAIN)
+│   ├── mcp.json              # Регистрация MCP серверов
+│   ├── settings.json         # Конфигурация permissions
+│   └── memory/MEMORY.md      # Бутстрап авто-памяти
 │
-├── scripts/                  # Server automation
-│   ├── backup.sh             # Encrypted backup (GPG AES-256)
-│   ├── git-push-all.sh       # Daily code backup to GitHub
-│   ├── calendar-sync.py      # Hourly calendar reconciliation
-│   └── reminders/            # Escalating reminder system
-│       ├── reminder.sh       # Generic reminder template
-│       ├── retro-reminder.sh # Weekly retro (4 levels)
-│       └── mark_retro_done.sh# Marker to skip remaining levels
+├── scripts/                  # Серверная автоматизация
+│   ├── backup.sh             # Шифрованный бэкап (GPG AES-256)
+│   ├── git-push-all.sh       # Ежедневный пуш кода на GitHub
+│   ├── calendar-sync.py      # Синхронизация календаря (hourly)
+│   └── reminders/            # Эскалирующие напоминалки
 │
-├── skills/                   # Example Claude Code skills
-│   ├── example/SKILL.md      # How skills work
-│   ├── track/SKILL.md        # Smart task routing
-│   └── reflect/SKILL.md      # Daily reflection
+├── skills/                   # Пример скиллов Claude Code
+│   ├── onboarding/SKILL.md   # Интерактивный онбординг
+│   ├── track/SKILL.md        # Умный роутинг задач
+│   └── reflect/SKILL.md      # Дневная рефлексия
 │
-├── docs/                     # Deep documentation
-│   ├── ARCHITECTURE.md       # System design & patterns
-│   └── FEATURES.md           # Non-obvious features guide
-│
-├── setup.sh                  # One-command setup
-├── configure.sh              # Interactive credential wizard
+├── setup.sh                  # Установка в одну команду
+├── configure.sh              # Интерактивный визард кредов
 └── .gitignore
 ```
 
-## Brain MCP Tools (20 tools)
+## Brain MCP — 20 инструментов
 
-### Vault Operations
-| Tool | What it does |
-|------|-------------|
-| `search_vault` | Full-text regex search across .md files |
-| `semantic_search` | Find by meaning using ONNX embeddings (384-dim, multilingual) |
-| `read_vault` | Read any vault document (path-safe) |
-| `write_vault` | Create/update with auto-frontmatter + git sync + embedding update |
-| `list_vault` | List files by folder and/or tags |
-| `update_dashboard` | Safe task management — add/complete/remove (never overwrites) |
+**Хранилище:** `search_vault` (полнотекстовый поиск) / `semantic_search` (поиск по смыслу) / `read_vault` / `write_vault` (с авто-мета и git-синком) / `list_vault` / `update_dashboard` (безопасное обновление, никогда не перезаписывает)
 
-### Ingestion
-| Tool | What it does |
-|------|-------------|
-| `ingest_audio` | Transcribe audio → vault (≤4min local, >4min Groq API, fallback) |
-| `ingest_document` | Process PDF/text → vault with auto-chunking for large files |
+**Ингест:** `ingest_audio` (аудио в текст, локально или через Groq) / `ingest_document` (PDF/текст с авто-чанкингом)
 
-### Calendar
-| Tool | What it does |
-|------|-------------|
-| `get_today` | Current date + logical day boundary (03:00) + week calendar |
-| `add_calendar_event` | Add event with source tracking (for task system sync) |
-| `list_calendar_events` | Query events by date range and project |
-| `remove_calendar_event` | Remove by ID or title substring |
-| `update_calendar_event` | Partial field updates |
-| `queue_calendar_sync` | Queue sync action for hourly cron processing |
+**Календарь:** `get_today` (текущая дата + граница дня в 03:00 + неделя) / `add_calendar_event` / `list_calendar_events` / `remove_calendar_event` / `update_calendar_event` / `queue_calendar_sync`
 
-### Telegram (Dual-Channel)
-| Tool | What it does |
-|------|-------------|
-| `send_telegram_question` | Non-blocking question → returns question_id |
-| `check_telegram_answer` | Poll for answer status |
-| `cancel_telegram_question` | Cancel pending question |
-| `ask_via_telegram` | Blocking question (legacy, still works) |
+**Telegram:** `send_telegram_question` (неблокирующий) / `check_telegram_answer` (поллинг) / `cancel_telegram_question` / `ask_via_telegram` (блокирующий, legacy)
 
-### Server
-| Tool | What it does |
-|------|-------------|
-| `get_server_status` | CPU, RAM, disk, PM2 process health |
-| `get_server_map` | Full service inventory from vault |
+**Сервер:** `get_server_status` (CPU/RAM/диск/PM2) / `get_server_map` (карта сервисов)
 
-## Takopi (Telegram Bot)
+## Takopi (Telegram-бот)
 
-[Takopi](https://github.com/miilv/takopi) is an open-source Telegram bridge for AI agents.
+[Takopi](https://github.com/miilv/takopi) — open-source мост между Telegram и AI-агентами.
 
-- Multi-engine: Claude Code, Codex, OpenCode, DeepSeek
-- Voice message transcription (routes to Brain's Whisper server)
-- File transfer, multi-session history, live streaming
-- Dual-channel Q&A server on port 9877
-- Install: `uv tool install -U takopi`
+- Мульти-движок: Claude Code, Codex, OpenCode, DeepSeek
+- Транскрибация голосовых (роутит на Brain Whisper)
+- Передача файлов, мультисессии, стриминг
+- Dual-channel Q&A сервер на порту 9877
+- Установка: `uv tool install -U takopi`
 
-## Vault Conventions
+## Конвенции хранилища
 
-| Convention | Description |
-|-----------|-------------|
-| **Context files** | Every folder has `FOLDER_NAME.md` that indexes its contents |
-| **Frontmatter** | All files have YAML frontmatter: title, tags, created, source |
-| **Bidirectional links** | Note A → Note B requires Note B → Note A |
-| **Dashboard** | Use `update_dashboard()` tool, NEVER `write_vault("dashboard.md")` |
-| **Decisions** | Significant decisions → `decisions/YYYY-MM-DD_slug.md` |
-| **Session notes** | After VS Code work → `conversations/YYYY-MM-DD_slug.md` |
-| **Day boundary** | Logical day ends at 03:00 (not midnight) — for night owls |
+- **Контекстные файлы** — в каждой папке есть `FOLDER_NAME.md`, который индексирует содержимое
+- **Фронтматтер** — все файлы имеют YAML метаданные: title, tags, created, source
+- **Двусторонние ссылки** — если A ссылается на B, то B обязан ссылаться на A
+- **Дашборд** — только через `update_dashboard()`, никогда через `write_vault("dashboard.md")`
+- **Решения** — значимые решения записываются в `decisions/YYYY-MM-DD_slug.md`
+- **Записи сессий** — после работы в VS Code записываем в `conversations/YYYY-MM-DD_slug.md`
+- **Граница дня в 03:00** — для полуночников: логический день заканчивается в 3 утра, не в полночь
 
-## Key Design Patterns
+## Под капотом
 
-### Debounced Git Sync
-Multiple vault writes within 30 seconds batch into a single git commit. Fire-and-forget — never blocks the tool response.
+**Debounced Git Sync** — несколько записей за 30 секунд собираются в один коммит. Fire-and-forget, не блокирует ответ.
 
-### Incremental Embedding Updates
-When you write a document, only that document's embeddings are recomputed. No full index rebuild needed.
+**Инкрементальные эмбеддинги** — при записи документа пересчитываются только его эмбеддинги. Полный ребилд индекса не нужен.
 
-### Thread-Safe ONNX Inference
-Global lock prevents concurrent embedding model access — safe for parallel tool calls.
+**Thread-Safe ONNX** — глобальный лок предотвращает конкурентный доступ к модели эмбеддингов. Безопасно для параллельных тул-коллов.
 
-### Fail-Safe Calendar Sync
-Events linked to task systems via `source_type` + `source_id`. Hourly cron verifies task completion before removing events.
+**Fail-Safe Calendar Sync** — события привязаны к таск-системам через `source_type` + `source_id`. Часовой крон проверяет завершённость задач перед удалением событий.
 
-### Escalating Reminders
-4-level system: detailed stats → simple nudge → last chance → auto-execute. Marker files prevent re-running after completion.
+**Эскалирующие напоминалки** — 4 уровня: подробная статистика -> простой тычок -> последний шанс -> авто-выполнение. Маркер-файлы предотвращают повторный запуск.
 
-### Path Security
-All vault paths validated against directory traversal and symlink attacks. Sensitive file patterns (.env, .ssh, tokens) blocked from ingestion.
+**Безопасность путей** — все vault-пути валидируются от directory traversal и symlink-атак. `.env`, `.ssh`, токены заблокированы от ингеста.
 
-## Creating Skills
+## Создание скиллов
 
-Skills are instruction files that extend Claude's capabilities:
+Скиллы — это файлы с инструкциями, которые расширяют возможности агента:
 
 ```
 ~/.claude/skills/my-skill/
-├── SKILL.md      # Instructions + triggers
-└── scripts/      # Supporting scripts (optional)
+├── SKILL.md      # Инструкции + триггеры
+└── scripts/      # Вспомогательные скрипты (опционально)
 ```
 
-See `skills/example/SKILL.md` for a template, `skills/track/SKILL.md` and `skills/reflect/SKILL.md` for real examples.
+Смотри `skills/onboarding/SKILL.md` для примера, `skills/track/SKILL.md` и `skills/reflect/SKILL.md` для боевых скиллов.
 
-**Key parts of SKILL.md:**
-- **Triggers** — when the skill activates ("send to telegram", "/retro")
-- **Instructions** — step-by-step workflow
-- **Scripts** — shell scripts the skill can call via Bash tool
+## Авто-память
 
-## Adding MCP Servers
+Claude Code хранит знания между сессиями в `~/.claude/projects/<project>/memory/`:
 
-Edit `~/.mcp.json` to add more servers:
+- `MEMORY.md` — ключевые правила, всегда загружается в контекст (держи до 200 строк)
+- Топик-файлы (`whisper.md`, `trello.md`) — детальные знания по доменам, подгружаются по необходимости
+- Claude обновляет эти файлы сам по мере работы
 
-```json
-{
-  "mcpServers": {
-    "brain": {
-      "command": "uv",
-      "args": ["run", "--directory", "~/brain", "python", "-m", "brain"],
-      "type": "stdio"
-    },
-    "your-server": {
-      "command": "uv",
-      "args": ["run", "--directory", "~/your-server", "python", "-m", "your_server"],
-      "type": "stdio"
-    }
-  }
-}
-```
+## Мониторинг
 
-## Auto-Memory System
+Brain Monitor (PM2 демон) шлёт алерты в Telegram когда:
+- CPU > 80% три проверки подряд
+- Свободная RAM < 1 GB
+- Диск > 85%
+- Любой PM2 процесс упал
 
-Claude Code persists knowledge across sessions in `~/.claude/projects/<project>/memory/`:
+Кулдаун 30 минут между одинаковыми алертами.
 
-- `MEMORY.md` — core rules, always loaded into context (keep under 200 lines)
-- Topic files (`whisper.md`, `trello.md`) — detailed domain knowledge, loaded on demand
-- Claude updates these files as it learns your preferences and patterns
+## Бэкапы
 
-**What to save:** stable patterns, key paths, user preferences, recurring solutions.
-**What NOT to save:** temporary state, unverified info, duplicates of CLAUDE.md.
+Три слоя:
+1. **Git-синк хранилища** (каждые 5 мин) — непрерывный бэкап знаний
+2. **Git-пуш кода** (ежедневно) — все репозитории на GitHub
+3. **Шифрованный бэкап** (ежедневно) — GPG AES-256 -> облако
 
-## Monitoring
+## Библиотекарь
 
-Brain Monitor (PM2 daemon) sends Telegram alerts when:
-- CPU > 80% for 3 consecutive checks
-- Available RAM < 1 GB
-- Disk usage > 85%
-- Any PM2 process goes offline
+Еженедельный автономный агент, который аудитит хранилище:
+- Пропущенные контекстные файлы, сироты, битые ссылки
+- Устаревшие записи, нарушения двусторонних ссылок
+- Проблемы с фронтматтером, скоринг свежести
+- Шлёт сжатый отчёт в Telegram
 
-30-minute cooldown between same-type alerts.
-
-## Backup Strategy
-
-Three layers:
-1. **Vault git sync** (every 5 min) — continuous knowledge backup
-2. **Code git push** (daily) — all repos to GitHub
-3. **Full encrypted backup** (daily) — GPG AES-256 → cloud storage
-
-## Librarian (Vault Audit)
-
-Weekly autonomous agent that audits your vault:
-- Missing context files, orphaned documents, broken links
-- Stale entries, bidirectional link violations
-- Frontmatter issues, freshness scoring
-- Cross-document contradictions
-- Sends compressed report via Telegram
-
-Set up as cron: `0 4 * * 1 bash ~/librarian/run.sh` (Monday 4 AM).
-
-## Non-Obvious Features
-
-See [docs/FEATURES.md](docs/FEATURES.md) for the full list, but highlights:
-
-- **Logical day boundary at 03:00** — `get_today()` returns `logical_today` so late-night work counts as "today"
-- **Voice message → vault pipeline** — transcribe → tag → save to inbox, all automatic
-- **Dashboard is append-only safe** — `update_dashboard()` parses sections, modifies in place, never overwrites
-- **Semantic search is multilingual** — the ONNX model (`paraphrase-multilingual-MiniLM-L12-v2`) works across languages
-- **Session notes as institutional memory** — save what was done, decisions made, open questions after each work session
+Крон: `0 4 * * 1 bash ~/librarian/run.sh` (понедельник, 4 утра).
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BRAIN_VAULT_PATH` | `~/vault` | Obsidian vault location |
-| `TAKOPI_CONFIG` | `~/.takopi/takopi.toml` | Takopi config path |
-| `GROQ_KEY_FILE` | `~/.groq-api-key.json` | Groq API key for long audio |
+| Переменная | По умолчанию | Описание |
+|------------|-------------|----------|
+| `BRAIN_VAULT_PATH` | `~/vault` | Путь к Obsidian хранилищу |
+| `TAKOPI_CONFIG` | `~/.takopi/takopi.toml` | Конфиг Takopi |
+| `GROQ_KEY_FILE` | `~/.groq-api-key.json` | API ключ Groq для длинных аудио |
 
 ## Credits
 
-- [Takopi](https://github.com/miilv/takopi) by banteg — Telegram bridge for AI agents
-- [FastMCP](https://github.com/jlowin/fastmcp) — lightweight MCP server framework
+- [Takopi](https://github.com/miilv/takopi) by banteg — Telegram-мост для AI-агентов
+- [FastMCP](https://github.com/jlowin/fastmcp) — легковесный MCP фреймворк
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper) — CTranslate2 Whisper
-- [Obsidian](https://obsidian.md) — knowledge management
-- [sentence-transformers](https://www.sbert.net/) — multilingual embeddings
+- [Obsidian](https://obsidian.md) — управление знаниями
+- [sentence-transformers](https://www.sbert.net/) — мультиязычные эмбеддинги
 
 ## License
 

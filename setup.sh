@@ -154,6 +154,11 @@ if [ ! -f "$HOME_DIR/.mcp.json" ]; then
       "command": "$UV_PATH",
       "args": ["run", "--directory", "$BRAIN_DIR", "python", "-m", "brain"],
       "type": "stdio"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "type": "stdio"
     }
   }
 }
@@ -186,11 +191,14 @@ if [ ! -f "$CLAUDE_DIR/projects/-root/memory/MEMORY.md" ]; then
     log "Memory template copied"
 fi
 
-# Example skill
-if [ ! -d "$CLAUDE_DIR/skills/example" ]; then
-    cp -r "$REPO_DIR/skills/example" "$CLAUDE_DIR/skills/example"
-    log "Example skill copied to ~/.claude/skills/example/"
-fi
+# Skills
+for skill_dir in "$REPO_DIR/skills"/*/; do
+    skill_name=$(basename "$skill_dir")
+    if [ ! -d "$CLAUDE_DIR/skills/$skill_name" ]; then
+        cp -r "$skill_dir" "$CLAUDE_DIR/skills/$skill_name"
+        log "Skill '$skill_name' copied to ~/.claude/skills/$skill_name/"
+    fi
+done
 
 # ─────────────────────────────────────────────────
 # 8. Set up cron jobs
@@ -237,12 +245,12 @@ echo "  Vault:      $VAULT_DIR"
 echo "  CLAUDE.md:  $HOME_DIR/CLAUDE.md"
 echo "  MCP config: $HOME_DIR/.mcp.json"
 echo ""
-echo "Next steps:"
-echo "  1. Configure Takopi: run 'takopi' and follow the setup wizard"
-echo "  2. Edit ~/CLAUDE.md — customize for your workflow"
-echo "  3. (Optional) Set up Groq API key for long audio transcription:"
-echo "     echo '{\"api_key\": \"your-key\"}' > ~/.groq-api-key.json && chmod 600 ~/.groq-api-key.json"
-echo "  4. (Optional) Set up vault remote: cd ~/vault && git remote add origin <url>"
-echo "  5. Start Claude Code and say hi!"
+echo "Next step:"
+echo "  Start Claude Code and say hi! The agent will guide you through"
+echo "  Telegram setup, voice messages, backups, security, and more."
+echo ""
+echo "  Just run:  claude"
+echo ""
+echo "  (Or run 'bash configure.sh' if you prefer manual setup)"
 echo ""
 echo "═══════════════════════════════════════════════"

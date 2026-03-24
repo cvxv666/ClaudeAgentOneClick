@@ -2,6 +2,12 @@
 
 Obsidian vault (`~/vault/`) + MCP server (`brain`) for knowledge management.
 
+## First Run — Onboarding
+
+**If this file contains `YOUR_NAME` or `~/.onboarded` does not exist** → run the onboarding skill (`~/.claude/skills/onboarding/SKILL.md`). This walks the user through setup conversationally: personalization, Telegram, voice, backups, security. Do NOT skip this — it's the user's first experience with their agent.
+
+**If onboarding was already completed** → check `conversations/*_onboarding.md` for skipped items. If something was skipped and becomes relevant in the current session, gently suggest setting it up (once per session, not pushy).
+
 ## Key Tool Behavior
 
 **`get_today()`** — call BEFORE writing any dates! Returns both the real date and `logical_today` (03:00 boundary). Use `logical_today` for reflections and session note filenames. Use real date for deadlines and calendar events.

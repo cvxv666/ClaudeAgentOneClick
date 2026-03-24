@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0b1a;
+    color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .diagram {
+    width: 1200px;
+    background: #0d0b1a;
+    border: 2px solid #3b3659;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diagram::before {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(110,28,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header {
+    padding: 28px 40px;
+    border-bottom: 2px solid #3b3659;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .header h1 span { color: #6e1cff; }
+
+  .header .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6e1cff;
+    border: 2px solid #6e1cff;
+    padding: 6px 16px;
+    background: rgba(110,28,255,0.1);
+  }
+
+  .content {
+    padding: 32px 40px;
+  }
+
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .step {
+    border: 2px solid #3b3659;
+    padding: 20px;
+    position: relative;
+    background: rgba(13,11,26,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 140px;
+  }
+
+  .step.active {
+    border-color: #6e1cff;
+    box-shadow: 4px 4px 0px rgba(110,28,255,0.3);
+  }
+
+  .step .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.25);
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    line-height: 1;
+  }
+
+  .step.active .num {
+    color: rgba(255,255,255,0.4);
+  }
+
+  .step .step-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f3f4f6;
+  }
+
+  .step h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .step p {
+    font-size: 12px;
+    color: #b8b0d0;
+    line-height: 1.5;
+    flex-grow: 1;
+  }
+
+  .step .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  .badge.required {
+    color: #f3f4f6;
+    background: #6e1cff;
+  }
+
+  .badge.optional {
+    color: #b8b0d0;
+    border: 1px solid #3b3659;
+  }
+
+  .row-connector {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .row-connector .arrow-down {
+    width: 2px;
+    height: 20px;
+    background: #3b3659;
+    position: relative;
+  }
+
+  .row-connector .arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background: #6e1cff;
+    transform: rotate(45deg);
+  }
+
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f3f4f6;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .subtitle::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: #6e1cff;
+  }
+
+  .footer {
+    padding: 20px 40px;
+    border-top: 2px solid #3b3659;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #b8b0d0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .footer .author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .footer .author img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #6e1cff;
+  }
+
+  .footer .author a {
+    color: #6e1cff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="diagram">
+  <div class="header">
+    <h1>Интерактивный Онбординг<span>:</span></h1>
+    <div class="tag">USER_JOURNEY</div>
+  </div>
+
+  <div class="content">
+    <div class="subtitle">Фаза 1: Знакомство</div>
+    <div class="flow">
+      <div class="step active">
+        <div class="num">0</div>
+        <div class="step-label">Приветствие</div>
+        <h3>Что это такое?</h3>
+        <p>Руки, Память, Связи. Чем отличается от ChatGPT.</p>
+        <div class="badge required">auto</div>
+      </div>
+      <div class="step active">
+        <div class="num">1</div>
+        <div class="step-label">Знакомство</div>
+        <h3>Кто ты?</h3>
+        <p>Имя, роль, цели. Персонализация CLAUDE.md и профиля.</p>
+        <div class="badge required">required</div>
+      </div>
+      <div class="step active">
+        <div class="num">2</div>
+        <div class="step-label">Память</div>
+        <h3>Vault по-простому</h3>
+        <p>Аналогия RAM vs диск. Папки, сессии, решения. Живая демка.</p>
+        <div class="badge required">required</div>
+      </div>
+      <div class="step active">
+        <div class="num">3</div>
+        <div class="step-label">Возможности</div>
+        <h3>MCP & Skills</h3>
+        <p>Плагины = суперсилы. Скиллы = рецепты. Что подключено.</p>
+        <div class="badge required">required</div>
+      </div>
+    </div>
+
+    <div class="row-connector"><div class="arrow-down"></div></div>
+
+    <div class="subtitle">Фаза 2: Подключения</div>
+    <div class="flow">
+      <div class="step active">
+        <div class="num">4</div>
+        <div class="step-label">Telegram</div>
+        <h3>Настройка бота</h3>
+        <p>BotFather по шагам, токен, chat ID. С нуля до работающего бота.</p>
+        <div class="badge required">recommended</div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="step-label">Голос</div>
+        <h3>Groq API</h3>
+        <p>Быстрая транскрибация длинных аудио. Бесплатный ключ.</p>
+        <div class="badge optional">optional</div>
+      </div>
+      <div class="step active">
+        <div class="num">6</div>
+        <div class="step-label">Задачи</div>
+        <h3>Первая задача</h3>
+        <p>Добавляем первый таск в дашборд. Показываем флоу.</p>
+        <div class="badge required">required</div>
+      </div>
+      <div class="step">
+        <div class="num">7</div>
+        <div class="step-label">Углубление</div>
+        <h3>Фишки и нюансы</h3>
+        <p>Граница дня, сессии, dual-channel, семантический поиск.</p>
+        <div class="badge optional">optional</div>
+      </div>
+    </div>
+
+    <div class="row-connector"><div class="arrow-down"></div></div>
+
+    <div class="subtitle">Фаза 3: Защита</div>
+    <div class="flow">
+      <div class="step">
+        <div class="num">8</div>
+        <div class="step-label">Визуал</div>
+        <h3>Obsidian</h3>
+        <p>Память агента своими глазами. Git плагин, VS Code, SFTP.</p>
+        <div class="badge optional">optional</div>
+      </div>
+      <div class="step active">
+        <div class="num">9</div>
+        <div class="step-label">Бэкапы</div>
+        <h3>Git + GPG</h3>
+        <p>Vault в приватный GitHub. Шифрованный бэкап с паролем.</p>
+        <div class="badge required">recommended</div>
+      </div>
+      <div class="step active">
+        <div class="num">10</div>
+        <div class="step-label">Безопасность</div>
+        <h3>Защита сервера</h3>
+        <p>SSH ключи, UFW, Fail2ban, права файлов, промпт-инъекции.</p>
+        <div class="badge required">recommended</div>
+      </div>
+      <div class="step active">
+        <div class="num">11</div>
+        <div class="step-label">Финиш</div>
+        <h3>Сохраняем и погнали</h3>
+        <p>Итоги в vault. Пропущенное отслеживается. Ты готов.</p>
+        <div class="badge required">auto</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>12 шагов // ~15 мин // без чтения доков</span>
+    <div class="author">
+      <img src="avatar.jpg" alt="Yash" />
+      <a href="https://t.me/yshlfe">by t.me/yshlfe</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
