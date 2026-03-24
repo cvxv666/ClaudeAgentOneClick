@@ -1,3 +1,5 @@
+![Claude Server Kit](docs/images/social-preview.png)
+
 # Claude Server Kit
 
 [![CI](https://github.com/doffskiii/claude-server-kit/actions/workflows/test-setup.yml/badge.svg)](https://github.com/doffskiii/claude-server-kit/actions)
