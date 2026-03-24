@@ -84,7 +84,7 @@ jobs:
         run: |
           sudo bash -c '
           cd /root/brain
-          /root/.local/bin/uv run python -c "from brain.server import mcp; print(f\"Brain loaded: {len(mcp._tools)} tools\")"
+          /root/.local/bin/uv run python -c "from brain.server import mcp; print(f\"Brain loaded OK: {mcp.name}\")"
           '
 
       - name: Verify Whisper server imports
@@ -102,6 +102,6 @@ jobs:
           echo "node: $(node --version)"
           echo "pm2: $(pm2 --version)"
           echo "vault files: $(find /root/vault -name "*.md" | wc -l)"
-          echo "brain tools: $(cd /root/brain && /root/.local/bin/uv run python -c "from brain.server import mcp; print(len(mcp._tools))")"
+          echo "brain: $(cd /root/brain && /root/.local/bin/uv run python -c "from brain.server import mcp; print(mcp.name)")"
           echo "==========================="
           '
