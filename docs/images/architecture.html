@@ -260,13 +260,13 @@
 <body>
 <div class="diagram">
   <div class="header">
-    <h1>Claude Server Kit<span>:</span> Архитектура</h1>
+    <h1>Claude Server Kit<span>:</span> Architecture</h1>
     <div class="tag">SYS_ARCHITECTURE_V1</div>
   </div>
 
   <div class="content">
     <div class="claude-box">
-      <div class="label">// Ядро системы</div>
+      <div class="label">// System Core</div>
       <h2>Claude Code</h2>
       <div class="components">
         <span>CLAUDE.md</span>
@@ -286,27 +286,27 @@
 
     <div class="services">
       <div class="service">
-        <div class="svc-label">MCP сервер</div>
+        <div class="svc-label">MCP server</div>
         <h3>Brain</h3>
-        <p>20 инструментов: vault, поиск, аудио, календарь, мониторинг</p>
+        <p>20 tools: vault, search, audio, calendar, monitoring</p>
         <div class="port">stdio</div>
       </div>
       <div class="service">
-        <div class="svc-label">Telegram мост</div>
+        <div class="svc-label">Telegram bridge</div>
         <h3>Takopi</h3>
-        <p>Бот + dual-channel Q&A + голосовые + файлы</p>
+        <p>Bot + dual-channel Q&A + voice + files</p>
         <div class="port">:9877</div>
       </div>
       <div class="service">
-        <div class="svc-label">Недельный агент</div>
+        <div class="svc-label">Weekly agent</div>
         <h3>Librarian</h3>
-        <p>Автономный аудит хранилища, проверки, отчёты</p>
-        <div class="port">cron: пн 04:00</div>
+        <p>Autonomous vault audit, checks, reports</p>
+        <div class="port">cron: Mon 04:00</div>
       </div>
       <div class="service">
-        <div class="svc-label">MCP сервер</div>
+        <div class="svc-label">MCP server</div>
         <h3>Context7</h3>
-        <p>Актуальная документация по любой библиотеке</p>
+        <p>Up-to-date docs for any library</p>
         <div class="port">stdio</div>
       </div>
     </div>
@@ -321,17 +321,17 @@
       <div class="data-box">
         <div class="data-icon">~/vault/</div>
         <h4>Obsidian Vault</h4>
-        <p>Markdown файлы, YAML метаданные, git-синк каждые 5 мин</p>
+        <p>Markdown files, YAML metadata, git sync every 5 min</p>
       </div>
       <div class="data-box">
         <div class="data-icon">calendar.db</div>
-        <h4>Календарь</h4>
-        <p>SQLite, привязка к задачам, синк раз в час</p>
+        <h4>Calendar</h4>
+        <p>SQLite, task linking, sync every hour</p>
       </div>
       <div class="data-box">
         <div class="data-icon">:8787</div>
         <h4>Whisper Server</h4>
-        <p>faster-whisper локально + Groq API для длинных аудио</p>
+        <p>faster-whisper locally + Groq API for long audio</p>
       </div>
     </div>
   </div>

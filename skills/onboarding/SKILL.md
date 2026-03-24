@@ -5,17 +5,17 @@ First-run experience for new Claude Server Kit users. The agent walks the user t
 ## Triggers
 
 - First launch detection: `CLAUDE.md` contains `YOUR_NAME` placeholder OR file `~/.onboarded` does not exist
-- User says: "start over", "onboarding", "покажи что умеешь", "начни сначала", "setup guide"
+- User says: "start over", "onboarding", "show what you can do", "setup guide"
 
 ## Important Rules
 
-- **Speak as the agent.** You are the AI assistant. Refer to the kit creator as "Яша" (third person).
+- **Speak as the agent.** You are the AI assistant. Refer to the kit creator as "the author" (third person).
 - **Conversational tone.** Friendly, no jargon dumps. Explain like a friend who knows tech.
 - **Each step: WHY → HOW → TRY.** Don't just configure — make the user understand what they're getting.
-- **Skippable steps.** If user says "skip" or "потом" — record it and move on. Never pressure.
+- **Skippable steps.** If user says "skip" or "later" — record it and move on. Never pressure.
 - **Ask one thing at a time.** Don't dump 5 questions. One question → one answer → next step.
 - **Handle errors gracefully.** If something fails — explain simply, offer to skip and come back later.
-- **Language:** Default to Russian. Switch to the user's language if they write in English or another language.
+- **Language:** Default to English. Switch to the user's language if they write in another language.
 - **Save progress is MANDATORY.** You MUST write onboarding results to vault at the end. This is not optional, do not ask the user — just do it. Without this file, you will never know what was configured and what was skipped.
 - **Partial save on interruption.** If you completed at least Steps 0-1 (welcome + name), save whatever you have so far to `conversations/YYYY-MM-DD_onboarding.md` with status "partial". On next launch, if this partial file exists but `~/.onboarded` does not — offer to continue from where you left off.
 - **`.onboarded` marker = last action.** Create `~/.onboarded` ONLY after successfully saving the full onboarding results to vault. Never before. If the marker exists without the vault file — something went wrong.
@@ -30,7 +30,7 @@ Key points to convey (in your own words, conversationally):
   - **Hands** — I don't just chat. I can open websites, manage files, run code, build projects. Like a remote employee who acts on requests, not just answers questions.
   - **Memory** — ChatGPT forgets you after every conversation. I don't. I have a notebook (vault) where I write down everything important. Next time we talk, I look it up and remember context.
   - **Connections** — I can connect to Telegram (we'll set it up soon), browse the web, work with files. And you can add more plugins (MCP servers) for GitHub, Figma, Google Sheets, whatever you need.
-- If they want to deep-dive later, Яша made a detailed post series covering every component: https://t.me/yshlfe/264
+- If they want to deep-dive later, the author made a detailed post series covering every component: https://t.me/yshlfe/264
 
 Then say: "Let's set everything up in 10-15 minutes. I'll guide you step by step."
 
@@ -234,7 +234,7 @@ If not interested → skip, move on.
 
 > Last but very important step. Your server now stores your data, API keys, and memory. Let's lock it down. I can set up everything myself, you just need to confirm a few things.
 
-Explain each item simply (use Яша's analogies) and offer to configure:
+Explain each item simply (use clear analogies) and offer to configure:
 
 **SSH keys (door lock):**
 > "Right now your server accepts passwords. Problem: there are bots that try thousands of passwords per second 24/7 — this is called bruteforce. SSH key is like a lock that only opens with your unique key stored on your computer. No key — no entry."

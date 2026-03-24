@@ -7,10 +7,10 @@ from pathlib import Path
 
 DB_PATH = Path("/root/brain/calendar.db")
 
-DAYS_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
-DAYS_RU_FULL = {
-    0: "понедельник", 1: "вторник", 2: "среда", 3: "четверг",
-    4: "пятница", 5: "суббота", 6: "воскресенье",
+DAYS_EN = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
+DAYS_EN_FULL = {
+    0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday",
+    4: "Friday", 5: "Saturday", 6: "Sunday",
 }
 
 

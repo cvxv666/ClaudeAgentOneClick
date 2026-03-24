@@ -70,7 +70,7 @@ The ONNX model (`paraphrase-multilingual-MiniLM-L12-v2`) supports 50+ languages.
 **Example:**
 ```
 semantic_search("how to set up monitoring")
-→ finds "Настройка мониторинга сервера.md" (Russian)
+→ finds "Server monitoring setup.md"
 ```
 
 ## 5. Voice Message Pipeline

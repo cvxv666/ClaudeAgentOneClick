@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from brain.calendar.db import (
-    DAYS_RU, DAYS_RU_FULL,
+    DAYS_EN, DAYS_EN_FULL,
     add_event as db_add_event,
     list_events as db_list_events,
     remove_event as db_remove_event,
@@ -37,13 +37,13 @@ def _week_start(d: date) -> date:
 
 
 def _format_date(d: date) -> str:
-    """Format as '03.03 (вт)'."""
-    return f"{d.strftime('%d.%m')} ({DAYS_RU[d.weekday()]})"
+    """Format as '03.03 (Tue)'."""
+    return f"{d.strftime('%d.%m')} ({DAYS_EN[d.weekday()]})"
 
 
 def _format_date_full(d: date) -> str:
-    """Format as '03.03.2026 (вторник)'."""
-    return f"{d.strftime('%d.%m.%Y')} ({DAYS_RU_FULL[d.weekday()]})"
+    """Format as '03.03.2026 (Tuesday)'."""
+    return f"{d.strftime('%d.%m.%Y')} ({DAYS_EN_FULL[d.weekday()]})"
 
 
 def _parse_date(s: str) -> date:
@@ -73,9 +73,9 @@ def _build_week_view(start: date, events: list[dict]) -> str:
     for i in range(7):
         d = start + timedelta(days=i)
         ds = d.strftime("%Y-%m-%d")
-        marker = " ← сегодня" if d == today else ""
+        marker = " ← today" if d == today else ""
         day_events = events_by_date.get(ds, [])
-        line = f"  {DAYS_RU[d.weekday()].capitalize()} {d.strftime('%d.%m')}{marker}"
+        line = f"  {DAYS_EN[d.weekday()]} {d.strftime('%d.%m')}{marker}"
         if day_events:
             for ev in day_events:
                 time_str = f" {ev['time']}" if ev.get("time") else ""
@@ -111,20 +111,20 @@ def calendar_get_today() -> str:
     logical = _logical_today()
     logical_line = ""
     if logical != today:
-        logical_line = f"\n⏰ Логический день (граница 03:00): {_format_date_full(logical)}"
+        logical_line = f"\n⏰ Logical day (03:00 boundary): {_format_date_full(logical)}"
 
     parts = [
-        f"Сегодня: {_format_date_full(today)}{logical_line}",
-        f"Неделя: {iso_week} ({_format_date(week_start)} — {_format_date(week_end)})",
+        f"Today: {_format_date_full(today)}{logical_line}",
+        f"Week: {iso_week} ({_format_date(week_start)} — {_format_date(week_end)})",
         "",
-        "Эта неделя:",
+        "This week:",
         _build_week_view(week_start, this_week_events),
     ]
 
     if next_week_events:
         parts.extend([
             "",
-            "Следующая неделя:",
+            "Next week:",
             _build_week_view(next_week_start, next_week_events),
         ])
 
