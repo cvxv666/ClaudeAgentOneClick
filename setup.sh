@@ -200,6 +200,22 @@ for skill_dir in "$REPO_DIR/skills"/*/; do
     fi
 done
 
+# Librarian (vault audit agent)
+if [ ! -d "$HOME_DIR/librarian" ]; then
+    cp -r "$REPO_DIR/librarian" "$HOME_DIR/librarian"
+    log "Librarian copied to ~/librarian/"
+else
+    warn "~/librarian/ already exists — skipping copy"
+fi
+
+# Scripts (backup, reminders)
+if [ ! -d "$HOME_DIR/scripts" ]; then
+    cp -r "$REPO_DIR/scripts" "$HOME_DIR/scripts"
+    log "Scripts copied to ~/scripts/"
+else
+    warn "~/scripts/ already exists — skipping copy"
+fi
+
 # ─────────────────────────────────────────────────
 # 8. Set up cron jobs
 # ─────────────────────────────────────────────────

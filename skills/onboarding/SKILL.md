@@ -40,6 +40,8 @@ Ask: "What's your name and what do you do? I need this to understand your contex
 
 Wait for response. Then ask about their main goals — what do they want to use the agent for?
 
+If user is unsure about goals ("just testing", "don't know yet", "exploring") — that's fine! Say: "No problem, we'll figure it out as we go. For now I'll set you up with everything and you can explore." Record goals as "exploring / to be defined".
+
 **Actions:**
 - Update `~/CLAUDE.md`: replace `YOUR_NAME` with their name (leave `YOUR_TG_ID` for now — we'll get it in Step 4 when setting up Telegram)
 - Save a brief profile to vault: `write_vault("knowledge/personal/profile.md", ...)`
@@ -94,7 +96,8 @@ If NOT configured, walk through setup:
 1. "Open Telegram, find @BotFather, send him `/newbot`"
 2. "He'll ask for a name — pick anything, like 'My AI Agent'"
 3. "Then a username — needs to end with 'bot', like 'myai_agent_bot'"
-4. "BotFather will give you a token — a long string starting with numbers. Send it to me here"
+4. "BotFather will give you a token — a long string like `123456789:ABCdef...`. Send it to me here"
+   - **Validate token:** must contain `:` character. If it doesn't — ask user to double-check: "That doesn't look like a bot token. It should look like `123456789:ABCdefGHI...` with a colon in the middle. Try copying it again from BotFather."
 5. Receive token → ask for their Telegram chat ID: "Now find @userinfobot in Telegram, send `/start`, it'll show your numeric ID. Send it to me"
 6. Receive chat ID → update `YOUR_TG_ID` in `~/CLAUDE.md` with this value
 7. Write `~/.takopi/takopi.toml` (create `~/.takopi/` dir if needed):
@@ -121,7 +124,10 @@ If NOT configured, walk through setup:
    ```
 8. Set permissions: `chmod 600 ~/.takopi/takopi.toml`
 9. Create downloads dir: `mkdir -p /root/downloads/telegram`
-10. Start Takopi via PM2: `pm2 start $(which takopi) --name takopi && pm2 save`
+10. Start Takopi via PM2. Try in order:
+    - `pm2 start $(which takopi) --name takopi && pm2 save`
+    - If `which takopi` fails: `pm2 start "uv tool run takopi run" --name takopi && pm2 save`
+    - If both fail: check `~/.local/bin/takopi` or `uv tool dir`
 11. "Send any message to your bot in Telegram — let's test it!"
 
 If already configured → "Telegram is already set up! Try sending me a message there."
@@ -170,11 +176,13 @@ If user wants the tour, explain these conversationally (pick the ones relevant t
 **Session notes:**
 > "After we do serious work together — like setting up a service, debugging something, or making a big decision — I'll suggest saving session notes. It's a quick summary of what we did and why. Next time you come back to this topic, I'll read those notes and pick up where we left off. You don't need to repeat yourself."
 
-**Dual-channel questions:**
+**Dual-channel questions (only mention if Telegram was set up in Step 4):**
 > "When I need your input, I'll send the question to BOTH this VS Code chat AND your Telegram bot. Wherever you see it first — just answer there. I'll pick up the first response. So you're never stuck waiting at the computer to answer me."
+If Telegram was skipped, skip this tip too — it won't work without the bot.
 
-**Smart voice routing:**
+**Smart voice routing (only mention if Telegram was set up in Step 4):**
 > "When you send me a voice message, I don't just transcribe it. I understand what it is: if it's an idea — I save it to inbox. A task — it goes to the dashboard. A question — I just answer. You don't need to tell me 'save this as a task', I figure it out from context."
+If Telegram was skipped, skip this tip too.
 
 **Decision log:**
 > "When we make an important choice together — like picking a technology, or deciding on an architecture — I write it down with all the reasoning. Months later, when you wonder 'why did we choose X?' — I can pull up the decision note with the full context."
@@ -211,8 +219,11 @@ If not interested → skip, move on.
 **Git sync setup:**
 1. Check if vault remote exists (`cd ~/vault && git remote get-url origin`)
 2. If not: "Create a PRIVATE repository on GitHub (important — private, because your notes are personal!). What's the URL?"
-3. User provides URL → `git remote add origin <url>` → `git push -u origin main`
-4. Confirm the cron is set up (vault-sync.sh every 5 min)
+3. Ask: "Are you using SSH keys with GitHub or HTTPS?"
+   - **SSH** (URL starts with `git@`): check if `~/.ssh/id_*` exists. If not — help generate and add to GitHub first, or suggest HTTPS instead.
+   - **HTTPS** (URL starts with `https://`): will need a Personal Access Token. Guide: "Go to GitHub → Settings → Developer settings → Personal access tokens → Generate. Give it repo access."
+4. User provides URL → `git remote add origin <url>` → `git push -u origin main`
+5. Verify cron is set up: `crontab -l | grep vault-sync`. If missing — add it: `(crontab -l 2>/dev/null; echo "*/5 * * * * bash ~/brain/scripts/vault-sync.sh") | crontab -`
 
 **Encrypted backup (optional):**
 1. "Want full encrypted backups too? You need to pick a passphrase — like a master password. I'll save it to a protected file on the server that only the root user can read."
